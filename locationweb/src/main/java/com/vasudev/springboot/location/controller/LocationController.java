@@ -1,8 +1,11 @@
 package com.vasudev.springboot.location.controller;
 
+import com.vasudev.springboot.location.interfaces.LocationRepository;
 import com.vasudev.springboot.location.models.Location;
 import com.vasudev.springboot.location.service.LocationService;
 import com.vasudev.springboot.location.util.EmailUtil;
+import com.vasudev.springboot.location.util.ReportUtil;
+import jakarta.servlet.ServletContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -19,7 +22,13 @@ public class LocationController {
     @Autowired
     LocationService locationService;
     @Autowired
+    LocationRepository locationRepository;
+    @Autowired
     EmailUtil emailUtil;
+    @Autowired
+    ReportUtil reportUtil;
+    @Autowired
+    ServletContext servletContext;
     @RequestMapping("/showCreate")
     public  String showCreate()
     {
@@ -66,6 +75,14 @@ public class LocationController {
         modelMap.addAttribute("allLocations", allLocations);
 
         return "displayLocations";
+    }
+    @RequestMapping("/generateReport")
+    public String generateReport()
+    {
+      String path = servletContext.getRealPath("/");
+        List<Object[]> data = locationRepository.findTypeAndTypeCount();
+       reportUtil.generatePieChart(path, data);
+        return "report";
     }
 
 }
